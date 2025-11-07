@@ -1,0 +1,197 @@
+from bolt_expressions import Scoreboard, Data
+from copy import copy
+from src.definitions import
+    LOAD,
+    TICK,
+    PLAYER_TICK,
+    GameState,
+    VAR_OBJECTIVE,
+    TMP_OBJECTIVE,
+    STORAGE,
+    BASE_ENEMY_NBT,
+    BowSpec,
+
+from ./reload import tick_reload_watcher
+from ./loot_tables import generate_loot_tables
+from ./helpers import predictable_arrow_rotation, inventory_item_count
+from ./spec_itemstacks import BOW_SPEC_ITEMSTACKS
+from ./upgrade_book_contents import UPGRADE_BOOK_BOW_CONTENTS, EntryData
+import ./weapon/blasthra as weapon_blasthra
+import ./weapon/plague_volley as weapon_plague_volley
+import ./weapon/iron_tempest as weapon_iron_tempest
+import math
+
+this = Data.entity("@s")
+storage = Data.storage(STORAGE)
+vars = Scoreboard(VAR_OBJECTIVE, "dummy")
+tmp = Scoreboard(TMP_OBJECTIVE, "dummy")
+
+current_bow_spec = Scoreboard("coop.current_spec.bow", "dummy")
+current_bow_level = Scoreboard("coop.current_level.bow", "dummy")
+
+
+merge function_tag minecraft:load {"values": [LOAD]}
+merge function_tag minecraft:tick {"values": [TICK]}
+
+generate_loot_tables()
+weapon_blasthra.generate_funcs()
+weapon_plague_volley.generate_funcs()
+weapon_iron_tempest.generate_funcs()
+
+
+def update_upgrade_menu_item(modify_existing_mainhand: bool):
+    ysb_items = Data.block("0 0 0").Items
+    main_item_data_text_list = ysb_items[0].components["minecraft:written_book_content"].pages[0].raw.extra
+    aux_item_data_text = ysb_items[1].components["minecraft:written_book_content"].pages[0].raw
+    
+    br = "\n"
+    blank_slate_modifier = '{function:"minecraft:set_written_book_pages",pages:[{raw:{text:"",extra:[""]}}],mode:"replace_all"}'
+    # Need to format this with "text" (str)
+    # text_modifier = '{{"function": "minecraft:set_written_book_pages", "pages":[{{"text":"{text}","color":"black"}}],"mode":"replace_all"}}'
+
+    def add_content(entry: str):
+        modifier = {
+            "function": "minecraft:set_written_book_pages",
+            "pages": [entry],
+            "mode": "replace_all"
+        }
+
+        item modify block 0 0 0 container.1 modifier
+        main_item_data_text_list.append(aux_item_data_text)
+
+    # Initialization    
+    ysb_items.remove()
+    item replace block 0 0 0 container.0 with written_book[custom_data={upgrade_book: True, destroy_on_drop: True}]
+    item modify block 0 0 0 container.0 blank_slate_modifier
+    item replace block 0 0 0 container.1 with written_book
+
+    # add_content({"text": "Bow" + br})
+    # add_content({"text": "--------------" + br, "color": "gray"})
+    # tmp[".current_item_lvl"] = 0
+    
+
+    for entry_data in UPGRADE_BOOK_BOW_CONTENTS:
+        if (
+            current_bow_level["@s"] == entry_data.req_lvl
+            and current_bow_spec["@s"] == entry_data.req_spec.value
+        ):  
+            add_content({
+                "text": str(entry_data.lvl),
+                "color": "dark_green",
+                "extra": [
+                    " ",
+                    {
+                        "text": entry_data.name,
+                        "color": "black",
+                    },
+                    br
+                ],
+                "click_event": {
+                    "action": "run_command",
+                    "command": "say hi",
+                }
+            })
+
+    # get rid of auxillary item before moving
+    # stuff to the player's inventory
+    ysb_items[1].remove()
+
+    if modify_existing_mainhand:
+        loot replace entity @s weapon.mainhand mine 0 0 0 stick[custom_data={drop_contents:1b}]
+    else:
+        clear @s written_book[minecraft:custom_data~{upgrade_book: 1b}]
+        loot give @s mine 0 0 0 stick[custom_data={drop_contents:1b}]
+
+
+
+function coop:summon/basic_zombie:
+    nbt = copy(BASE_ENEMY_NBT)
+    nbt["Tags"].append("basic_zombie")
+    nbt["DeathLootTable"] = "coop:coin_10"
+    summon zombie ~ ~ ~ nbt
+
+function coop:start_game:
+    vars[".game_state"] = GameState.RUNNING.value
+    say Game started!
+
+    current_bow_spec["@s"] = BowSpec.NONE.value
+    current_bow_level["@s"] = 0
+
+function coop:stop_game:
+    vars[".game_state"] = GameState.NOT_RUNNING.value
+    say Game stopped!
+
+function LOAD:
+    tellraw @a {"text": "Loaded!", "color": "green"}
+    setblock 0 0 0 yellow_shulker_box
+    forceload add 0 0
+
+function TICK:
+    as @a at @s function PLAYER_TICK
+
+    # 🚫 Disables XP dropping from enemies
+    kill @e[type=experience_orb]
+
+    # 🚫 Disables item dropping
+    #    Bypass with: {allow_dropping: 1b} 
+    as @e[type=item]:
+        item_custom_data = this.Item.components."minecraft:custom_data"
+
+        if item_custom_data.destroy_on_drop:
+            kill @s
+        elif not item_custom_data.allow_dropping:
+            this.PickupDelay = 0
+            this.Owner = this.Thrower
+
+
+    as @e[type=arrow] at @s:
+        if entity @s[tag=coop.weapon.blasthra.arrow] function coop:weapon/blasthra/tick_arrow
+        
+    as @e[type=arrow, tag=coop.weapon.blasthra.arrow] at @s function coop:weapon/blasthra/tick_arrow
+    as @e[tag=coop.weapon.plague_volley.arrow] at @s function coop:weapon/plague_volley/tick_arrow
+    as @e[tag=coop.weapon.plague_volley.poisoned_entity] at @s function coop:weapon/plague_volley/tick_poisoned_entity
+    as @e[tag=coop.weapon.iron_tempest.arrow] at @s function coop:weapon/iron_tempest/tick_arrow
+
+    if vars[".game_state"] == GameState.RUNNING.value:
+        pass
+
+function PLAYER_TICK:
+    tick_reload_watcher()
+
+    # 🚫 Disables offhand
+    if items entity @s weapon.offhand *:
+        data remove block 0 0 0 Items
+        item replace block 0 0 0 container.0 from entity @s weapon.offhand
+        item replace entity @s weapon.offhand with air
+        loot give @s mine 0 0 0 stick[custom_data={drop_contents:1b}]
+
+    # 🪙 Convert collected coins into XP levels
+    storage.args.remove()
+    store result storage STORAGE args.arg_0 int 1:
+        clear @s gold_nugget[minecraft:custom_data~{coin:1b}]
+
+    if storage.args.arg_0 >= 1:
+        with var storage.args:
+            $xp add @s $(arg_0) levels
+        stopsound @s * minecraft:entity.player.levelup
+        playsound minecraft:entity.experience_orb.pickup master @s ~ ~ ~ 0.3 1.5
+
+    # 📙 Ensuring upgrade book exists in inventory
+    upgrade_book_count = inventory_item_count("written_book[minecraft:custom_data~{upgrade_book: 1b}]")
+
+    #     # clear @s written_book[minecraft:custom_data~{upgrade_book: 1b}]
+    #     # give @s written_book[custom_data={upgrade_book: True, destroy_on_drop: True}]
+    # else:
+    # if predicate coop:upgrade_book/is_blank_mainhand:
+    if upgrade_book_count != 1:
+        update_upgrade_menu_item(modify_existing_mainhand=False)
+
+    # Weapon spec give logic
+    if inventory_item_count('bow[minecraft:custom_data~{weapon: "bow"}]'):
+        for bow_spec, item_stack in BOW_SPEC_ITEMSTACKS.items():      
+            count = item_stack[0]
+            item_def = item_stack[1]
+
+            if current_bow_spec["@s"] == bow_spec.value:
+                give @s item_def count
+        

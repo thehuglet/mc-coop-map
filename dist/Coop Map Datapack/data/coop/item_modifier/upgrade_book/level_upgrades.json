@@ -1,0 +1,11 @@
+{
+    "function": "minecraft:set_written_book_pages",
+    "pages": [
+        {
+            "raw": {
+                "text": ""
+            }
+        }
+    ],
+    "mode": "replace_all"
+}

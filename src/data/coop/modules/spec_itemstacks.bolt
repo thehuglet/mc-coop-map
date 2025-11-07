@@ -1,0 +1,7 @@
+from src.definitions import BowSpec
+
+BOW_SPEC_ITEMSTACKS = {
+    # BowSpec.NONE: (1, 'bow[custom_data={weapon: "bow"}, rarity=rare]'),
+    
+    # BowSpec.SPLIT_FLIGHTS: (1, [rarity=rare]]),
+}

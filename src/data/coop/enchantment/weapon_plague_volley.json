@@ -1,0 +1,73 @@
+{
+    "description": "Poisonous Arrows",
+    "supported_items": "minecraft:bow",
+    "weight": 1,
+    "max_level": 1,
+    "min_cost": {
+        "base": 0,
+        "per_level_above_first": 0
+    },
+    "max_cost": {
+        "base": 0,
+        "per_level_above_first": 0
+    },
+    "anvil_cost": 0,
+    "slots": [
+        "mainhand"
+    ],
+    "effects": {
+        "minecraft:post_attack": [
+            {
+                "requirements": [
+                    {
+                        "condition": "minecraft:damage_source_properties",
+                        "predicate": {
+                            "is_direct": false
+                        }
+                    }
+                ],
+                "effect": {
+                    "type": "minecraft:run_function",
+                    "function": "coop:weapon/plague_volley/on_hit_entity"
+                },
+                "enchanted": "attacker",
+                "affected": "victim"
+            },
+            {
+                "requirements": {
+                    "condition": "minecraft:damage_source_properties",
+                    "predicate": {
+                        "is_direct": false
+                    }
+                },
+                "effect": {
+                    "type": "minecraft:run_function",
+                    "function": "coop:weapon/plague_volley/on_hit_entity_as_arrow"
+                },
+                "enchanted": "attacker",
+                "affected": "damaging_entity"
+            }
+        ],
+        "minecraft:hit_block": [
+            {
+                "effect": {
+                    "type": "minecraft:run_function",
+                    "function": "coop:weapon/plague_volley/on_hit_block"
+                }
+            }
+        ],
+        "minecraft:projectile_spawned": [
+            {
+                "effect": {
+                    "type": "minecraft:all_of",
+                    "effects": [
+                        {
+                            "type": "minecraft:run_function",
+                            "function": "coop:weapon/plague_volley/on_arrow_init"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

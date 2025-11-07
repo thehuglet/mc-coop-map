@@ -1,0 +1,114 @@
+from bolt_expressions import Data, Scoreboard
+from src.definitions import TMP_OBJECTIVE, VAR_OBJECTIVE
+from coop:helpers import predictable_arrow_rotation, get_gametime
+import math
+import itertools
+
+this = Data.entity("@s")
+tmp = Scoreboard(TMP_OBJECTIVE, "dummy")
+vars = Scoreboard(VAR_OBJECTIVE, "dummy")
+arrow_vfx_step_count = Scoreboard("coop.weapon.iron_tempest.arrow_vfx_step_count", "dummy")
+
+def generate_funcs():
+    function coop:weapon/iron_tempest/give:
+        give @s bow[enchantments={"coop:weapon_iron_tempest": 1, "power": 5,"infinity": 1},item_name=[{"color":"#A1FFC0","text":"I"},{"color":"#A7F7C6","text":"r"},{"color":"#ADEFCB","text":"o"},{"color":"#B3E7D1","text":"n "},{"color":"#B9DFD7","text":"T"},{"color":"#BFD7DD","text":"e"},{"color":"#C6CEE2","text":"m"},{"color":"#CCC6E8","text":"p"},{"color":"#D2BEEE","text":"e"},{"color":"#D8B6F4","text":"s"},{"color":"#E4A6FF","text":"t"}],tooltip_display={hidden_components:["unbreakable"]},unbreakable={}] 1
+
+    function coop:weapon/iron_tempest/arrow_impact_effect:
+        playsound minecraft:entity.blaze.hurt master @a ~ ~ ~ 0.8 1.8 0.1
+        playsound minecraft:entity.blaze.hurt master @a ~ ~ ~ 0.6 2.0 0.1
+
+        playsound minecraft:item.mace.smash_air master @a ~ ~ ~ 0.7 1.8 0.1
+        playsound minecraft:item.mace.smash_air master @a ~ ~ ~ 0.7 2.0 0.1
+
+    function coop:weapon/iron_tempest/tick_arrow:
+        """This function needs to be called externally"""
+        tag @s add temp
+        on origin if entity @s[distance=80..]:
+            kill @n[type=arrow, tag=temp]
+        tag @s remove temp
+
+
+        if entity @s[tag=coop.weapon.iron_tempest.has_hit_block]:
+            execute return fail
+
+        with predictable_arrow_rotation():
+            density = 1.0
+            steps = 45 * density
+            step_size = 0.1 * density
+
+            for n in range(45):
+                forward_offset = 0.1 * n
+                positioned ^ ^ ^forward_offset run function coop:weapon/iron_tempest/spawn_arrow_vfx
+
+    function coop:weapon/iron_tempest/spawn_arrow_vfx:
+        particle minecraft:dust_color_transition{from_color:[0.700, 0.900, 1.000], to_color:[1.000, 1.000, 1.000], scale: 0.2} ~ ~ ~ 0 0 0 0 0 force
+
+        arrow_vfx_step_count["@s"] += 1
+        if arrow_vfx_step_count["@s"] % 7 == 0:
+            particle minecraft:white_ash ~ ~ ~ 0 0 0 0 0 force
+            particle minecraft:ash ~ ~ ~ 0 0 0 0 0 force
+
+    function coop:weapon/iron_tempest/on_hit_entity:
+        function coop:weapon/iron_tempest/arrow_impact_effect
+
+        playsound minecraft:block.anvil.land master @a ~ ~ ~ 0.2 2.0 0.1
+        playsound minecraft:block.anvil.land master @a ~ ~ ~ 0.2 1.7 0.1
+
+        playsound minecraft:item.trident.hit master @a ~ ~ ~ 0.8 0.8 0.1
+        playsound minecraft:item.trident.hit master @a ~ ~ ~ 0.8 1.0 0.1
+
+        playsound minecraft:block.note_block.chime master @a ~ ~ ~ 0.8 1.8 0.1
+        playsound minecraft:block.note_block.chime master @a ~ ~ ~ 0.8 2.0 0.1
+
+    function coop:weapon/iron_tempest/on_hit_block:
+        # Using `kill` here would kill the arrow before
+        # it hits the ground visually on the client
+        this.life = 1197
+        tag @s add coop.weapon.iron_tempest.has_hit_block
+
+        if entity @s[tag=coop.weapon.iron_tempest.arrow]:
+            function coop:weapon/iron_tempest/arrow_impact_effect
+
+            
+
+    function coop:weapon/iron_tempest/on_arrow_init:
+        if data entity @s {crit: True}:
+            this.Silent = True
+            this.damage *= 3
+            tag @s add coop.weapon.iron_tempest.arrow
+            this.NoGravity = True
+            this.crit = False
+
+            # Arrow speed multiplier
+            speed_modifier = 1.5
+
+            scale_down_amount = speed_modifier * 0.001
+            for axis in range(3):
+                store result entity @s Motion[axis] double scale_down_amount data get entity @s Motion[axis] 1000
+
+            # This ensures the on_used_bow_as_player func only runs once
+            store result score .current_timestamp tmp:
+                time query gametime
+
+            if tmp[".current_timestamp"] != vars[".iron_tempest_last_used_timestamp"]:
+                on origin at @s function coop:weapon/iron_tempest/on_used_bow_as_player
+
+            vars[".iron_tempest_last_used_timestamp"] = tmp[".current_timestamp"]
+
+    function coop:weapon/iron_tempest/on_used_bow_as_player:
+        playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 0.6 0.1
+        playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 0.8 0.1
+        playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 1.0 0.1
+        playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 1.2 0.1
+        playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 1.4 0.1
+        playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 1.6 0.1
+
+        playsound minecraft:item.llama_carpet.unequip master @a ~ ~ ~ 0.6 1.6 0.1
+        playsound minecraft:item.llama_carpet.unequip master @a ~ ~ ~ 0.6 1.8 0.1
+        playsound minecraft:item.llama_carpet.unequip master @a ~ ~ ~ 0.6 2.0 0.1
+
+        playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.15 2 0.1
+        playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.15 1.8 0.1
+        playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.15 1.6 0.1
+
+         

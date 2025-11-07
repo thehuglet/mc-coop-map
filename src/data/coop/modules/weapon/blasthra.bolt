@@ -1,0 +1,87 @@
+from bolt_expressions import Data, Scoreboard
+from nbtlib import Double
+from src.definitions import VAR_OBJECTIVE, TMP_OBJECTIVE
+from coop:helpers import predictable_arrow_rotation
+
+this = Data.entity("@s")
+vars = Scoreboard(VAR_OBJECTIVE, "dummy")
+tmp = Scoreboard(TMP_OBJECTIVE, "dummy")
+
+def generate_funcs():
+    function coop:weapon/blasthra/give:
+        give @s bow[tooltip_display={hidden_components:["unbreakable"]},unbreakable={},enchantments={"coop:weapon_blasthra": 1, "coop:wider_multishot": 2, "infinity": 1},item_name=[{"color":"#FF1900","text":"B"},{"color":"#FF2601","text":"l"},{"color":"#FF3402","text":"a"},{"color":"#FF4103","text":"s"},{"color":"#FF4E04","text":"t"},{"color":"#FF5B05","text":"h"},{"color":"#FF6906","text":"r"},{"color":"#FF8308","text":"a"}]] 1
+
+    function coop:weapon/blasthra/explode_arrow:
+        this.life = 1197
+        
+        if entity @s[tag=!coop.weapon.blasthra.arrow]:
+            return fail
+    
+        particle minecraft:explosion ~ ~0.1 ~ 0 0 0 0 0 force
+        particle minecraft:smoke ~ ~0.1 ~ 0 0 0 0.35 10 force
+        particle minecraft:white_smoke ~ ~0.1 ~ 0 0 0 0.2 50 force
+        particle minecraft:flame ~ ~0.1 ~ 0 0 0 0.1 15 force
+        particle minecraft:dust_plume ~ ~ ~ 0 0 0 0.2 20 force
+        particle minecraft:lava ~ ~ ~ 0 0 0 0 3 force
+        
+        with predictable_arrow_rotation():
+            particle minecraft:flash{color:[0.600,0.650,0.500,0.1]} ^ ^ ^-0.1 0 0 0 0.2 1 force
+
+        playsound minecraft:entity.generic.explode master @a ~ ~ ~ 0.16 2.0 0.08
+        playsound minecraft:block.fire.ambient master @a ~ ~ ~ 1.0 1.5 0.08
+        playsound minecraft:entity.firework_rocket.blast master @a ~ ~ ~ 0.5 1.5 0.08
+        playsound minecraft:entity.firework_rocket.large_blast master @a ~ ~ ~ 0.25 1.9 0.08
+        playsound minecraft:entity.firework_rocket.twinkle master @a ~ ~ ~ 0.15 2.0 0.01
+
+        as @e[type=!player, type=!arrow, distance=..2]:
+            damage @s 10 coop:bypasses_cooldown at ~ ~ ~
+
+        on passengers kill @s
+        
+
+    function coop:weapon/blasthra/tick_arrow:
+        """This function needs to be called externally"""
+        if this.HasBeenShot == True:
+            particle minecraft:smoke ~ ~ ~ 0 0 0 0 0 force
+            particle minecraft:smoke ~ ~ ~ 0 0 0 0.05 0 force
+
+    function coop:weapon/blasthra/init_arrow:
+        this.damage = 0.0000001
+        this.Silent = True
+
+        # Arrow speed multiplier
+        speed_modifier = 0.4
+
+        scale_down_amount = speed_modifier * 0.001
+        for axis in range(3):
+            store result entity @s Motion[axis] double scale_down_amount data get entity @s Motion[axis] 1000
+
+        if data entity @s {crit: True}:
+            # This is done to disable the default crit arrow trail
+            this.crit = False
+
+            summon block_display ~ ~ ~ {Tags: [temp], teleport_duration: 20, transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[-0.15f,-0.6f,-0.15f],scale:[0.3f,0.3f,0.3f]},block_state:{Name:"minecraft:tnt"}}
+            # rotate @n[tag=temp] 180 180
+            ride @n[tag=temp] mount @s
+            tag @n[tag=temp] remove temp
+            
+            tag @s add coop.weapon.blasthra.arrow
+
+            # This ensures the on_used_bow_as_player func only runs once
+            store result score .current_timestamp tmp:
+                time query gametime
+
+            if tmp[".current_timestamp"] != vars[".blasthra_last_used_timestamp"]:
+                on origin at @s function coop:weapon/blasthra/on_used_bow_as_player
+
+            vars[".blasthra_last_used_timestamp"] = tmp[".current_timestamp"]
+
+    function coop:weapon/blasthra/on_used_bow_as_player:
+        anchored eyes:
+            playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.3 1.6 0.1
+            playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.3 1.8 0.1
+            playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.3 2.0 0.1
+            playsound minecraft:entity.firework_rocket.launch master @a ^ ^0.5 ^ 1.0 1.5 0.1
+            playsound minecraft:entity.firework_rocket.launch master @a ^ ^0.5 ^ 1.0 1.2 0.1
+            playsound minecraft:entity.firework_rocket.launch master @a ^ ^0.5 ^ 0.3 0.9 0.1
+            

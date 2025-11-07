@@ -1,0 +1,9 @@
+from bolt_expressions import Scoreboard
+
+used_coas_obj = Scoreboard("coop.dev.reload", "used:carrot_on_a_stick")
+
+def tick_reload_watcher():
+    if used_coas_obj["@s"] >= 1:
+        used_coas_obj["@s"] = 0
+        reload
+        

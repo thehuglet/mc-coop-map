@@ -1,0 +1,12 @@
+playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 0.6 0.1
+playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 0.8 0.1
+playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 1.0 0.1
+playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 1.2 0.1
+playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 1.4 0.1
+playsound minecraft:item.lead.untied master @a ~ ~ ~ 0.45 1.6 0.1
+playsound minecraft:item.llama_carpet.unequip master @a ~ ~ ~ 0.6 1.6 0.1
+playsound minecraft:item.llama_carpet.unequip master @a ~ ~ ~ 0.6 1.8 0.1
+playsound minecraft:item.llama_carpet.unequip master @a ~ ~ ~ 0.6 2.0 0.1
+playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.15 2 0.1
+playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.15 1.8 0.1
+playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.15 1.6 0.1

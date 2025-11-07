@@ -1,0 +1,23 @@
+output: dist
+
+name: "coop"
+
+data_pack:
+  name: "Coop Map Datapack"
+  zipped: false
+  pack_format: 0.92
+  description: "boop"
+  load:
+    data: src/data
+    # pack.png: resources/pack.png
+
+require:
+- bolt
+- bolt_expressions
+
+pipeline:
+- mecha
+
+meta:
+  bolt:
+    entrypoint: '*:main'

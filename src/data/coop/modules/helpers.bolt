@@ -1,0 +1,36 @@
+from contextlib import contextmanager
+from bolt_expressions import Scoreboard, Data
+from src.definitions import TMP_OBJECTIVE
+import itertools
+
+this = Data.entity("@s")
+tmp = Scoreboard(TMP_OBJECTIVE)
+
+incr = itertools.count(start=0)
+
+@contextmanager
+def predictable_arrow_rotation():
+    """Fixes vanilla arrow `Rotation` jank to behave as it should"""
+    temp_tag = "helpers.correct_arrow_rotation.temp"
+
+    tag @s add temp_tag
+    
+    execute summon marker:
+        this.Pos = Data.entity(f"@n[tag={temp_tag}]").Motion
+        positioned 0.0 0 0.0 facing entity @s feet positioned as @n[tag=temp_tag]:        
+            yield
+        kill @s
+
+    tag @s remove temp_tag
+
+def get_gametime():
+    scoreholder = f".helper_out_{next(incr)}"
+    store result score scoreholder tmp:
+        time query gametime
+    return tmp[scoreholder]
+
+def inventory_item_count(item_: str):
+    scoreholder = f".helper_out_{next(incr)}"
+    store result score scoreholder tmp:
+        clear @s item_ 0
+    return tmp[scoreholder]

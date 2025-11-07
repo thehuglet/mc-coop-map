@@ -1,0 +1,88 @@
+from bolt_expressions import Data, Scoreboard
+from nbtlib import Double
+from src.definitions import TMP_OBJECTIVE, VAR_OBJECTIVE, STORAGE
+
+this = Data.entity("@s")
+tmp = Scoreboard(TMP_OBJECTIVE, "dummy")
+vars = Scoreboard(VAR_OBJECTIVE, "dummy")
+storage = Data.storage(STORAGE)
+poison_timer = Scoreboard("coop.weapon.plague_volley.poison_timer", "dummy")
+poison_instances_remaining = Scoreboard("coop.weapon.plague_volley.poison_instances_remaining", "dummy")
+
+
+def generate_funcs():
+    function coop:weapon/plague_volley/give:
+        give @s bow[tooltip_display={hidden_components:["unbreakable"]},unbreakable={},enchantments={"coop:weapon_plague_volley": 1, "infinity": 1, "piercing": 5, "coop:narrower_multishot": 2},item_name=[{"color":"#BD66FF","text":"P"},{"color":"#BA73EC","text":"l"},{"color":"#B880D9","text":"a"},{"color":"#B58CC6","text":"g"},{"color":"#B299B3","text":"u"},{"color":"#B0A6A0","text":"e "},{"color":"#ADB38E","text":"V"},{"color":"#AABF7B","text":"o"},{"color":"#A8CC68","text":"l"},{"color":"#A5D955","text":"l"},{"color":"#A2E642","text":"e"},{"color":"#9DFF1C","text":"y"}]] 1
+
+    function coop:weapon/plague_volley/arrow_impact_effect:
+        playsound minecraft:item.trident.hit master @a ~ ~ ~ 0.6 1.2 0.1
+        playsound minecraft:item.trident.hit master @a ~ ~ ~ 0.6 1.4 0.1
+
+    function coop:weapon/plague_volley/tick_arrow:
+        """This function needs to be called externally"""
+        if this.HasBeenShot == True:
+            particle minecraft:dust_color_transition{from_color:[1.000,0.039,0.871],to_color:[0.616,1.000,0.180],scale:0.5} ~ ~ ~ 0.05 0.05 0.05 0 5 force
+            particle minecraft:white_ash ~ ~ ~ 0 0 0 0 3 force
+
+    function coop:weapon/plague_volley/tick_poisoned_entity:
+        """This function needs to be called externally"""
+        if poison_timer["@s"] % 3 == 0:
+            anchored eyes particle dust_color_transition{from_color:[1.000,0.039,0.871],to_color:[0.616,1.000,0.180],scale:1.0} ^ ^ ^ 0.2 0.2 0.2 0 5 force
+
+        if poison_timer["@s"] >= 15:
+            poison_instances_remaining["@s"] -= 1
+            poison_timer["@s"] = 0
+            anchored eyes particle minecraft:block{block_state: "redstone_block"} ^ ^ ^ 0 0 0 0 5 force
+            playsound minecraft:entity.enderman.ambient master @a ~ ~ ~ 0.5 2 0.1
+            playsound minecraft:entity.shulker.ambient master @a ~ ~ ~ 0.5 2 0.1
+            playsound minecraft:entity.guardian.hurt_land master @a ~ ~ ~ 0.5 1 0.1
+            playsound minecraft:entity.drowned.ambient_water master @a ~ ~ ~ 0.5 2 0.1
+
+            damage @s 4 coop:poison
+            
+            if poison_instances_remaining["@s"] < 1:
+                tag @s remove coop.weapon.plague_volley.poisoned_entity
+                poison_instances_remaining["@s"].reset()
+                poison_timer["@s"].reset()
+
+        poison_timer["@s"] += 1
+
+    function coop:weapon/plague_volley/on_hit_entity:
+        tag @s add coop.weapon.plague_volley.poisoned_entity
+        poison_instances_remaining["@s"] = 5
+        poison_timer["@s"] = 15
+
+        function coop:weapon/plague_volley/arrow_impact_effect
+
+    function coop:weapon/plague_volley/on_hit_entity_as_arrow:
+        pass
+
+    function coop:weapon/plague_volley/on_hit_block:
+        # Using `kill` here would kill the arrow before
+        # it hits the ground visually on the client
+        this.life = 1197
+        function coop:weapon/plague_volley/arrow_impact_effect
+
+    function coop:weapon/plague_volley/on_arrow_init:
+        tag @s add coop.weapon.plague_volley.arrow
+        this.damage = 0.000001
+        this.crit = False
+        this.Silent = True
+
+        # This ensures the on_used_bow_as_player func only runs once
+        store result score .current_timestamp tmp:
+            time query gametime
+
+        if tmp[".current_timestamp"] != vars[".plague_volley_last_used_timestamp"]:
+            on origin at @s function coop:weapon/plague_volley/on_used_bow_as_player
+
+        vars[".plague_volley_last_used_timestamp"] = tmp[".current_timestamp"]
+
+    function coop:weapon/plague_volley/on_used_bow_as_player:
+        positioned ^ ^ ^0.5:
+            playsound minecraft:entity.evoker.prepare_summon master @a ~ ~ ~ 0.08 2 0.1
+            playsound minecraft:entity.evoker.prepare_summon master @a ~ ~ ~ 0.08 1.85 0.1
+            playsound minecraft:entity.parrot.imitate.evoker master @a ~ ~ ~ 1.0 2 1
+            playsound minecraft:entity.shulker.shoot master @a ~ ~ ~ 0.9 1.75 0.1
+            playsound minecraft:entity.shulker.shoot master @a ~ ~ ~ 0.9 1.5 0.1
+            playsound minecraft:entity.shulker.shoot master @a ~ ~ ~ 0.9 1.4 0.1

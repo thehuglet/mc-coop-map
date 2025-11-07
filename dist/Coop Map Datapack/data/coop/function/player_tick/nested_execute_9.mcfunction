@@ -1,0 +1,2 @@
+item modify block 0 0 0 container.1 {'function': 'minecraft:set_written_book_pages', 'pages': [{'text': '6', 'color': 'dark_green', 'extra': [' ', {'text': 'Iron Tempest', 'color': 'black'}, '\n'], 'click_event': {'action': 'run_command', 'command': 'say hi'}}], 'mode': 'replace_all'}
+data modify block 0 0 0 Items[0].components."minecraft:written_book_content".pages[0].raw.extra append from block 0 0 0 Items[1].components."minecraft:written_book_content".pages[0].raw

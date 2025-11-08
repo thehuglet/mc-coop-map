@@ -64,6 +64,7 @@ def generate_funcs():
         function coop:weapon/plague_volley/arrow_impact_effect
 
     function coop:weapon/plague_volley/on_arrow_init:
+        tag @s add coop.handles_own_despawn
         tag @s add coop.weapon.plague_volley.arrow
         this.damage = 0.000001
         this.crit = False

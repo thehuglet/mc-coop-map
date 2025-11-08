@@ -1,3 +1,4 @@
+tag @s add coop.handles_own_despawn
 tag @s add coop.weapon.plague_volley.arrow
 data modify entity @s damage set value 1e-06f
 data modify entity @s crit set value 0b

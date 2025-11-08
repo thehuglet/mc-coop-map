@@ -1,2 +1,3 @@
-item modify block 0 0 0 container.1 {'function': 'minecraft:set_written_book_pages', 'pages': [{'text': '1', 'color': 'dark_green', 'extra': [' ', {'text': 'Bow', 'color': 'black'}, '\n'], 'click_event': {'action': 'run_command', 'command': 'say hi'}}], 'mode': 'replace_all'}
-data modify block 0 0 0 Items[0].components."minecraft:written_book_content".pages[0].raw.extra append from block 0 0 0 Items[1].components."minecraft:written_book_content".pages[0].raw
+function coop:update_upgrade_menu_item
+clear @s written_book[minecraft:custom_data~{upgrade_book: 1b}]
+loot give @s mine 0 0 0 stick[custom_data={drop_contents: 1b}]

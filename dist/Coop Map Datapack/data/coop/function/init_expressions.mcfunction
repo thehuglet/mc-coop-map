@@ -2,6 +2,7 @@ scoreboard objectives add bolt.expr.const dummy
 scoreboard objectives add bolt.expr.temp dummy
 scoreboard objectives add coop.current_level.bow dummy
 scoreboard objectives add coop.current_spec.bow dummy
+scoreboard objectives add coop.upgrade_book.buy_trigger trigger
 scoreboard objectives add coop.weapon.iron_tempest.arrow_vfx_step_count dummy
 scoreboard objectives add coop.weapon.plague_volley.poison_instances_remaining dummy
 scoreboard objectives add coop.weapon.plague_volley.poison_timer dummy

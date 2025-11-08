@@ -69,9 +69,9 @@ def generate_funcs():
         if entity @s[tag=coop.weapon.iron_tempest.arrow]:
             function coop:weapon/iron_tempest/arrow_impact_effect
 
-            
-
     function coop:weapon/iron_tempest/on_arrow_init:
+        tag @s add coop.handles_own_despawn
+
         if data entity @s {crit: True}:
             this.Silent = True
             this.damage *= 3

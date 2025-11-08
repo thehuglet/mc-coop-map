@@ -1,2 +1,4 @@
-item modify block 0 0 0 container.1 {'function': 'minecraft:set_written_book_pages', 'pages': [{'text': '3', 'color': 'dark_green', 'extra': [' ', {'text': 'Reinforced Arrows', 'color': 'black'}, '\n'], 'click_event': {'action': 'run_command', 'command': 'say hi'}}], 'mode': 'replace_all'}
-data modify block 0 0 0 Items[0].components."minecraft:written_book_content".pages[0].raw.extra append from block 0 0 0 Items[1].components."minecraft:written_book_content".pages[0].raw
+scoreboard players set @s coop.current_spec.bow 1
+scoreboard players set @s coop.current_level.bow 2
+clear @s *[minecraft:custom_data~{weapon: "bow"}]
+function coop:upgrade_book_trigger_cleanup

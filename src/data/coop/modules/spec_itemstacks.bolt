@@ -1,7 +1,125 @@
-from src.definitions import BowSpec
+from src.definitions import ItemSpec
+from dataclasses import dataclass
 
-BOW_SPEC_ITEMSTACKS = {
-    # BowSpec.NONE: (1, 'bow[custom_data={weapon: "bow"}, rarity=rare]'),
-    
-    # BowSpec.SPLIT_FLIGHTS: (1, [rarity=rare]]),
-}
+@dataclass
+class ItemStackDef:
+    lvl: int
+    spec: ItemSpec
+    item_: str
+
+BOW_ITEMSTACK_DEFINITIONS = [
+    ItemStackDef(lvl=1, spec=ItemSpec.NONE, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1}, ' +
+            'unbreakable={}, ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+    ItemStackDef(lvl=2, spec=ItemSpec.NONE, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1, power: 1}, ' +
+            'unbreakable={}, ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+
+    # Reinforced Arrows path
+    ItemStackDef(lvl=3, spec=ItemSpec.REINFORCED_ARROWS, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1, power: 3}, ' +
+            'unbreakable={}, ' +
+            'item_name=[{"text": "Reinforced Arrows", "color": "light_purple"}], ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+    ItemStackDef(lvl=4, spec=ItemSpec.REINFORCED_ARROWS, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1, power: 4}, ' +
+            'unbreakable={}, ' +
+            'item_name=[{"text": "Reinforced Arrows", "color": "light_purple"}], ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+    ItemStackDef(lvl=5, spec=ItemSpec.REINFORCED_ARROWS, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1, power: 5}, ' +
+            'unbreakable={}, ' +
+            'item_name=[{"text": "Reinforced Arrows", "color": "light_purple"}], ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+
+    # Split Flights path
+    ItemStackDef(lvl=3, spec=ItemSpec.SPLIT_FLIGHTS, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1, power: 1, multishot: 1, piercing: 1}, ' +
+            'unbreakable={}, ' +
+            'item_name=[{"text": "Split Flights", "color": "light_purple"}], ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+    ItemStackDef(lvl=4, spec=ItemSpec.SPLIT_FLIGHTS, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1, power: 2, multishot: 1, piercing: 2}, ' +
+            'unbreakable={}, ' +
+            'item_name=[{"text": "Split Flights", "color": "light_purple"}], ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+    ItemStackDef(lvl=5, spec=ItemSpec.SPLIT_FLIGHTS, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1, power: 3, multishot: 2, piercing: 3}, ' +
+            'unbreakable={}, ' +
+            'item_name=[{"text": "Split Flights", "color": "light_purple"}], ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+
+    # Maxed
+    ItemStackDef(lvl=6, spec=ItemSpec.IRON_TEMPEST, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1, power: 6, "coop:weapon_iron_tempest": 1}, ' +
+            'unbreakable={}, ' +
+            'item_name=[{"color":"#A1FFC0","text":"I"},{"color":"#A7F7C6","text":"r"},{"color":"#ADEFCB","text":"o"},{"color":"#B3E7D1","text":"n "},{"color":"#B9DFD7","text":"T"},{"color":"#BFD7DD","text":"e"},{"color":"#C6CEE2","text":"m"},{"color":"#CCC6E8","text":"p"},{"color":"#D2BEEE","text":"e"},{"color":"#D8B6F4","text":"s"},{"color":"#E4A6FF","text":"t"}], ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+    ItemStackDef(lvl=6, spec=ItemSpec.PLAGUE_VOLLEY, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1, power: 3, "coop:weapon_plague_volley": 1, "coop:narrower_multishot": 2, "piercing": 5}, ' +
+            'unbreakable={}, ' +
+            'item_name=[{"color":"#BD66FF","text":"P"},{"color":"#BA73EC","text":"l"},{"color":"#B880D9","text":"a"},{"color":"#B58CC6","text":"g"},{"color":"#B299B3","text":"u"},{"color":"#B0A6A0","text":"e "},{"color":"#ADB38E","text":"V"},{"color":"#AABF7B","text":"o"},{"color":"#A8CC68","text":"l"},{"color":"#A5D955","text":"l"},{"color":"#A2E642","text":"e"},{"color":"#9DFF1C","text":"y"}], ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+    ItemStackDef(lvl=6, spec=ItemSpec.BLASTHRA, item_=(
+        'bow' +
+        '[' +
+            'custom_data={weapon: "bow"}, ' +
+            'enchantments={infinity: 1, power: 3, "coop:weapon_blasthra": 1, "coop:wider_multishot": 2}, ' +
+            'unbreakable={}, ' +
+            'item_name=[{"color":"#FF1900","text":"B"},{"color":"#FF2601","text":"l"},{"color":"#FF3402","text":"a"},{"color":"#FF4103","text":"s"},{"color":"#FF4E04","text":"t"},{"color":"#FF5B05","text":"h"},{"color":"#FF6906","text":"r"},{"color":"#FF8308","text":"a"}], ' +
+            'tooltip_display={hidden_components:["unbreakable"]}' +
+        ']'
+    )),
+]

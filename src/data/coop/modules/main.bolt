@@ -182,7 +182,7 @@ function TICK:
         if enemy_aggro_timer["@s"] > 10:
             enemy_aggro_timer["@s"] = -1
             this.Silent = True
-            damage @s 0 coop:poison by @r
+            damage @s 0 coop:poison by @p
             this.Silent = False
         elif enemy_aggro_timer["@s"] > 0:
             enemy_aggro_timer["@s"] += 1

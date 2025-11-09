@@ -7,8 +7,69 @@ class ItemStackDef:
     spec: ItemSpec
     item_: str
 
+SWORD_ITEMSTACK_DEFINITIONS = [
+    ItemStackDef(lvl=1, spec=ItemSpec.SWORD_NONE, item_=(
+        'wooden_axe' +
+        '[' +
+            'custom_data={weapon: "sword"}, ' +
+            'item_model="minecraft:wooden_sword", ' +
+            'item_name="Wooden Sword", ' +
+            'attribute_modifiers=[' +
+                '{id:"minecraft:base_attack_damage",type:"attack_damage",amount:3.0,operation:"add_value",slot:"mainhand"},' +
+                '{id:"minecraft:base_attack_speed",type:"attack_speed",amount:-2.4000000953674316,operation:"add_value",slot:"mainhand"}' +
+            '], ' +
+            'weapon={disable_blocking_for_seconds:0,item_damage_per_attack:0}, ' +
+            'unbreakable={}, ' +
+            'tooltip_display={hidden_components:["attribute_modifiers","unbreakable"]}' +
+        ']'
+    )),
+    ItemStackDef(lvl=2, spec=ItemSpec.SWORD_NONE, item_=(
+        'stone_axe' +
+        '[' +
+            'custom_data={weapon: "sword"}, ' +
+            'item_model="minecraft:stone_sword", ' +
+            'item_name="Stone Sword", ' +
+            'attribute_modifiers=[' +
+                '{id:"minecraft:base_attack_damage",type:"attack_damage",amount:4.0,operation:"add_value",slot:"mainhand"},' +
+                '{id:"minecraft:base_attack_speed",type:"attack_speed",amount:-2.4000000953674316,operation:"add_value",slot:"mainhand"}' +
+            '], ' +
+            'weapon={disable_blocking_for_seconds:0,item_damage_per_attack:0}, ' +
+            'unbreakable={}, ' +
+            'tooltip_display={hidden_components:["attribute_modifiers","unbreakable"]}' +
+        ']'
+    )),
+
+    # --- Fury path ---
+    ItemStackDef(lvl=3, spec=ItemSpec.SWORD_FURY, item_=(
+        'iron_axe' +
+        '[' +
+            'custom_data={weapon: "sword"}, ' +
+            'item_model="minecraft:iron_sword", ' +
+            'item_name="Iron Sword", ' +
+            'attribute_modifiers=[' +
+                '{id:"minecraft:base_attack_damage",type:"attack_damage",amount:5.0,operation:"add_value",slot:"mainhand"},' +
+                '{id:"minecraft:base_attack_speed",type:"attack_speed",amount:-2.8,operation:"add_value",slot:"mainhand"}' +
+            '], ' +
+            'weapon={disable_blocking_for_seconds:0,item_damage_per_attack:0}, ' +
+            'unbreakable={}, ' +
+            'tooltip_display={hidden_components:["attribute_modifiers","unbreakable"]}' +
+        ']'
+    )),
+
+    # --- Whirlwind path ---
+    ItemStackDef(lvl=3, spec=ItemSpec.SWORD_WHIRLWIND, item_=(
+        'iron_sword' +
+        '[' +
+            'custom_data={weapon: "sword"}, ' +
+            'unbreakable={}, ' +
+            'enchantments={sweeping_edge: 1}, ' +
+            'tooltip_display={hidden_components:["attribute_modifiers","unbreakable"]}' +
+        ']'
+    )),
+]
+
 BOW_ITEMSTACK_DEFINITIONS = [
-    ItemStackDef(lvl=1, spec=ItemSpec.NONE, item_=(
+    ItemStackDef(lvl=1, spec=ItemSpec.BOW_NONE, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +
@@ -17,7 +78,7 @@ BOW_ITEMSTACK_DEFINITIONS = [
             'tooltip_display={hidden_components:["unbreakable"]}' +
         ']'
     )),
-    ItemStackDef(lvl=2, spec=ItemSpec.NONE, item_=(
+    ItemStackDef(lvl=2, spec=ItemSpec.BOW_NONE, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +
@@ -27,8 +88,8 @@ BOW_ITEMSTACK_DEFINITIONS = [
         ']'
     )),
 
-    # Reinforced Arrows path
-    ItemStackDef(lvl=3, spec=ItemSpec.REINFORCED_ARROWS, item_=(
+    # --- Reinforced Arrows path ---
+    ItemStackDef(lvl=3, spec=ItemSpec.BOW_REINFORCED_ARROWS, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +
@@ -38,7 +99,7 @@ BOW_ITEMSTACK_DEFINITIONS = [
             'tooltip_display={hidden_components:["unbreakable"]}' +
         ']'
     )),
-    ItemStackDef(lvl=4, spec=ItemSpec.REINFORCED_ARROWS, item_=(
+    ItemStackDef(lvl=4, spec=ItemSpec.BOW_REINFORCED_ARROWS, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +
@@ -48,7 +109,7 @@ BOW_ITEMSTACK_DEFINITIONS = [
             'tooltip_display={hidden_components:["unbreakable"]}' +
         ']'
     )),
-    ItemStackDef(lvl=5, spec=ItemSpec.REINFORCED_ARROWS, item_=(
+    ItemStackDef(lvl=5, spec=ItemSpec.BOW_REINFORCED_ARROWS, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +
@@ -59,8 +120,8 @@ BOW_ITEMSTACK_DEFINITIONS = [
         ']'
     )),
 
-    # Split Flights path
-    ItemStackDef(lvl=3, spec=ItemSpec.SPLIT_FLIGHTS, item_=(
+    # --- Split Flights path ---
+    ItemStackDef(lvl=3, spec=ItemSpec.BOW_SPLIT_FLIGHTS, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +
@@ -70,7 +131,7 @@ BOW_ITEMSTACK_DEFINITIONS = [
             'tooltip_display={hidden_components:["unbreakable"]}' +
         ']'
     )),
-    ItemStackDef(lvl=4, spec=ItemSpec.SPLIT_FLIGHTS, item_=(
+    ItemStackDef(lvl=4, spec=ItemSpec.BOW_SPLIT_FLIGHTS, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +
@@ -80,7 +141,7 @@ BOW_ITEMSTACK_DEFINITIONS = [
             'tooltip_display={hidden_components:["unbreakable"]}' +
         ']'
     )),
-    ItemStackDef(lvl=5, spec=ItemSpec.SPLIT_FLIGHTS, item_=(
+    ItemStackDef(lvl=5, spec=ItemSpec.BOW_SPLIT_FLIGHTS, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +
@@ -92,7 +153,7 @@ BOW_ITEMSTACK_DEFINITIONS = [
     )),
 
     # Maxed
-    ItemStackDef(lvl=6, spec=ItemSpec.IRON_TEMPEST, item_=(
+    ItemStackDef(lvl=6, spec=ItemSpec.BOW_IRON_TEMPEST, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +
@@ -102,7 +163,7 @@ BOW_ITEMSTACK_DEFINITIONS = [
             'tooltip_display={hidden_components:["unbreakable"]}' +
         ']'
     )),
-    ItemStackDef(lvl=6, spec=ItemSpec.PLAGUE_VOLLEY, item_=(
+    ItemStackDef(lvl=6, spec=ItemSpec.BOW_PLAGUE_VOLLEY, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +
@@ -112,7 +173,7 @@ BOW_ITEMSTACK_DEFINITIONS = [
             'tooltip_display={hidden_components:["unbreakable"]}' +
         ']'
     )),
-    ItemStackDef(lvl=6, spec=ItemSpec.BLASTHRA, item_=(
+    ItemStackDef(lvl=6, spec=ItemSpec.BOW_BLASTHRA, item_=(
         'bow' +
         '[' +
             'custom_data={weapon: "bow"}, ' +

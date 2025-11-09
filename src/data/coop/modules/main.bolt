@@ -16,8 +16,13 @@ from src.wave_definition import parse_wave, WAVE_0
 from ./reload import tick_reload_watcher
 from ./loot_tables import generate_loot_tables
 from ./helpers import predictable_arrow_rotation, inventory_item_count, randint_range, get_gametime, get_xp_levels
-from ./spec_itemstacks import BOW_ITEMSTACK_DEFINITIONS
-from ./upgrade_book_contents import UPGRADE_BOOK_BOW_CONTENTS, EntryData
+from ./spec_itemstacks import
+    BOW_ITEMSTACK_DEFINITIONS,
+    SWORD_ITEMSTACK_DEFINITIONS,
+from ./upgrade_book_contents import
+    EntryData,
+    UPGRADE_BOOK_BOW_CONTENTS,
+    UPGRADE_BOOK_SWORD_CONTENTS,
 import ./weapon/blasthra as weapon_blasthra
 import ./weapon/plague_volley as weapon_plague_volley
 import ./weapon/iron_tempest as weapon_iron_tempest
@@ -29,9 +34,12 @@ vars = Scoreboard(VAR_OBJECTIVE, "dummy")
 tmp = Scoreboard(TMP_OBJECTIVE, "dummy")
 
 upgrade_book_buy_trigger = Scoreboard("coop.upgrade_book.buy_trigger", "trigger")
+enemy_aggro_timer = Scoreboard("coop.enemy_aggro_timer", "dummy")
+current_sword_spec = Scoreboard("coop.current_spec.sword", "dummy")
+current_sword_level = Scoreboard("coop.current_level.sword", "dummy")
 current_bow_spec = Scoreboard("coop.current_spec.bow", "dummy")
 current_bow_level = Scoreboard("coop.current_level.bow", "dummy")
-enemy_aggro_timer = Scoreboard("coop.enemy_aggro_timer", "dummy")
+
 
 merge function_tag minecraft:load {"values": [LOAD]}
 merge function_tag minecraft:tick {"values": [TICK]}
@@ -45,6 +53,38 @@ def encode_trigger_value(spec: int, level: int) -> int:
     return spec * 1000 + level
 
 def update_upgrade_menu_item(modify_existing_mainhand: bool):
+    def generate_header_modifier(text: str) -> dict:
+        return {
+            "function": "minecraft:set_written_book_pages",
+            "pages": [{
+                "text": f"{text}\n",
+                "extra": [{
+                    "text": "-------------\n",
+                    "color": "#9a9996",
+                }],
+                "color": "black",
+            }],
+            "mode": "replace_all"
+        }
+
+    def get_book_entry(entry_data: EntryData) -> dict:
+        return {
+            "text": str(entry_data.lvl),
+            "color": "dark_green",
+            "extra": [
+                " ",
+                {
+                    "text": f"{entry_data.name} ({entry_data.price})",
+                    "color": "#5e5c64",
+                },
+                br
+            ],
+            "click_event": {
+                "action": "run_command",
+                "command": f"trigger {upgrade_book_buy_trigger} set {encoded_upgrade_value}",
+            }
+        }
+
     execute function coop:update_upgrade_menu_item:
         ysb_items = Data.block("0 0 0").Items
         main_item_data_text_list = ysb_items[0].components["minecraft:written_book_content"].pages[0].raw.extra
@@ -57,40 +97,40 @@ def update_upgrade_menu_item(modify_existing_mainhand: bool):
         ysb_items.remove()
         item replace block 0 0 0 container.0 with written_book[custom_data={upgrade_book: True}]
         item modify block 0 0 0 container.0 blank_slate_modifier
-        item replace block 0 0 0 container.1 with written_book
 
-        # This for loop is completely cursed
-        # it's optimized for compile time by keeping commands inline
+        # Those for loops are completely cursed
+        # they're optimized for compile time by keeping commands inline
         # instead of spamming nested executes
+        item replace block 0 0 0 container.1 with written_book
+        item modify block 0 0 0 container.1 generate_header_modifier("Sword Upgrades")
+        main_item_data_text_list.append(aux_item_data_text)
+
+        for entry_data in UPGRADE_BOOK_SWORD_CONTENTS:
+            item replace block 0 0 0 container.1 with written_book
+            execute if score @s current_sword_level matches entry_data.req_lvl if score @s current_sword_spec matches entry_data.req_spec.value:
+                encoded_upgrade_value = encode_trigger_value(entry_data.spec.value, entry_data.lvl)
+                modifier = {
+                    "function": "minecraft:set_written_book_pages",
+                    "pages": [get_book_entry(entry_data)],
+                    "mode": "replace_all"
+                }
+                item modify block 0 0 0 container.1 modifier
+            main_item_data_text_list.append(aux_item_data_text)
+        
+        item replace block 0 0 0 container.1 with written_book
+        item modify block 0 0 0 container.1 generate_header_modifier("\nBow Upgrades")
+        main_item_data_text_list.append(aux_item_data_text)
+
         for entry_data in UPGRADE_BOOK_BOW_CONTENTS:
             item replace block 0 0 0 container.1 with written_book
             execute if score @s current_bow_level matches entry_data.req_lvl if score @s current_bow_spec matches entry_data.req_spec.value:
                 encoded_upgrade_value = encode_trigger_value(entry_data.spec.value, entry_data.lvl)
-                
-                entry = {
-                    "text": str(entry_data.lvl),
-                    "color": "dark_green",
-                    "extra": [
-                        " ",
-                        {
-                            "text": f"{entry_data.name} ({entry_data.price})",
-                            "color": "black",
-                        },
-                        br
-                    ],
-                    "click_event": {
-                        "action": "run_command",
-                        "command": f"trigger {upgrade_book_buy_trigger} set {encoded_upgrade_value}",
-                    }
-                }
-
                 modifier = {
                     "function": "minecraft:set_written_book_pages",
-                    "pages": [entry],
+                    "pages": [get_book_entry(entry_data)],
                     "mode": "replace_all"
                 }
                 item modify block 0 0 0 container.1 modifier
-
             main_item_data_text_list.append(aux_item_data_text)
 
         # get rid of auxillary item before moving
@@ -103,20 +143,34 @@ def update_upgrade_menu_item(modify_existing_mainhand: bool):
         clear @s written_book[minecraft:custom_data~{upgrade_book: 1b}]
         loot give @s mine 0 0 0 stick[custom_data={drop_contents:1b}]
 
-function coop:summon/basic_zombie:
-    nbt = copy(BASE_ENEMY_NBT)
-    nbt["Tags"].append("basic_zombie")
-    nbt["DeathLootTable"] = "coop:coin_10"
-    summon zombie ~ ~ ~ nbt
+function ./summon/basic_zombie:
+    summon zombie ~ ~ ~ {DeathLootTable:"coop:coin_1",PersistenceRequired:1b,CanPickUpLoot:0b,CanBreakDoors:0b,Tags:["coop.enemy", "coop.spawn_temp"],equipment:{head:{id:"minecraft:oak_button",count:1}},drop_chances:{head:0.000},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:spawn_reinforcements",base:0}]}
+
+function ./summon/conehead_zombie:
+    summon zombie ~ ~ ~ {DeathLootTable:"coop:coin_2",PersistenceRequired:1b,CanPickUpLoot:0b,Health:40f,CanBreakDoors:0b,Tags:["coop.enemy", "coop.spawn_temp"],equipment:{head:{id:"minecraft:oak_button",count:1,components:{"minecraft:item_model":"coop:conehead"}}},drop_chances:{head:0.000},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:max_health",base:40},{id:"minecraft:spawn_reinforcements",base:0}]}
+
+function ./summon/buckethead_zombie:
+    summon zombie ~ ~ ~ {DeathLootTable:"coop:coin_3",PersistenceRequired:1b,CanPickUpLoot:0b,Health:60f,CanBreakDoors:0b,Tags:["coop.enemy", "coop.spawn_temp"],equipment:{head:{id:"minecraft:oak_button",count:1,components:{"minecraft:item_model":"coop:buckethead"}}},drop_chances:{head:0.000},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:max_health",base:60},{id:"minecraft:spawn_reinforcements",base:0}]}
+
+function ./summon/imp:
+    summon zombie ~ ~ ~ {DeathLootTable:"coop:coin_1",PersistenceRequired:1b,CanPickUpLoot:0b,Health:10f,IsBaby:1b,CanBreakDoors:0b,Tags:["coop.enemy","oop.spawn_temp"],equipment:{head:{id:"minecraft:oak_button",count:1}},drop_chances:{head:0.000},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:max_health",base:10},{id:"minecraft:movement_speed",base:0.18},{id:"minecraft:spawn_reinforcements",base:0}]}
+
+function ./summon/shield_zombie:
+    summon zombie_villager ~ ~ ~ {DeathLootTable:"coop:coin_3",PersistenceRequired:1b,CanPickUpLoot:0b,Health:40f,Tags:["coop.enemy","coop.spawn_temp"],equipment:{head:{id:"minecraft:lectern",count:1},mainhand:{id:"minecraft:shield",count:1},offhand:{id:"minecraft:shield",count:1}},drop_chances:{head:0.000,mainhand:0.000,offhand:0.000},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:max_health",base:40}],VillagerData:{type:"minecraft:plains"}}
+
+function ./summon/color_imp_trio:
+    summon zombie ~ ~ ~ {DeathLootTable:"coop:coin_1",PersistenceRequired:1b,CanPickUpLoot:0b,Health:10f,IsBaby:1b,CanBreakDoors:0b,Tags:["coop.enemy","oop.spawn_temp"],Passengers:[{id:"minecraft:zombie",DeathLootTable:"coop:coin_1",PersistenceRequired:1b,CanPickUpLoot:0b,Health:10f,IsBaby:1b,CanBreakDoors:0b,Tags:["coop.enemy","oop.spawn_temp"],Passengers:[{id:"minecraft:zombie",DeathLootTable:"coop:coin_1",PersistenceRequired:1b,CanPickUpLoot:0b,Health:10f,IsBaby:1b,CanBreakDoors:0b,Tags:["coop.enemy","oop.spawn_temp"],equipment:{head:{id:"minecraft:red_glazed_terracotta",count:1}},drop_chances:{head:0.000},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:max_health",base:10},{id:"minecraft:movement_speed",base:0.26},{id:"minecraft:spawn_reinforcements",base:0}]}],equipment:{head:{id:"minecraft:yellow_glazed_terracotta",count:1,components:{"minecraft:dyed_color":16252672}}},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:max_health",base:10},{id:"minecraft:movement_speed",base:0.22},{id:"minecraft:spawn_reinforcements",base:0}]}],equipment:{head:{id:"minecraft:lime_glazed_terracotta",count:1,components:{"minecraft:dyed_color":3407616}}},drop_chances:{head:0.000},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:max_health",base:10},{id:"minecraft:movement_speed",base:0.18},{id:"minecraft:spawn_reinforcements",base:0}]}
 
 function coop:start_game:
     vars[".game_state"] = GameState.RUNNING.value
     say Game started!
 
-    current_bow_spec["@a"] = ItemSpec.NONE.value
-    current_bow_level["@a"] = 1
+    current_sword_spec["@a"] = ItemSpec.SWORD_NONE.value
+    current_sword_level["@a"] = 0
+    current_bow_spec["@a"] = ItemSpec.BOW_NONE.value
+    current_bow_level["@a"] = 0
     # clear @s written_book[minecraft:custom_data~{upgrade_book: 1b}]
-    clear @a
+    # clear @a
     storage.current_wave = parse_wave(WAVE_0)
     vars[".enemy_spawn_timer"] = 0
     item replace entity @a inventory.0 with arrow
@@ -133,11 +187,17 @@ function coop:spawn_enemy:
     e = vars[".enemy_to_spawn"]
     
     if e == Enemy.BASIC_ZOMBIE.value:
-        summon zombie ~ ~ ~ {DeathLootTable:"coop:coin_1",PersistenceRequired:1b,CanPickUpLoot:0b,CanBreakDoors:0b,Tags:["coop.enemy", "coop.spawn_temp"],equipment:{head:{id:"minecraft:oak_button",count:1}},drop_chances:{head:0.000},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:spawn_reinforcements",base:0}]}
+        function ./summon/basic_zombie
     elif e == Enemy.CONEHEAD_ZOMBIE.value:
-        summon zombie ~ ~ ~ {DeathLootTable:"coop:coin_2",PersistenceRequired:1b,CanPickUpLoot:0b,Health:40f,CanBreakDoors:0b,Tags:["coop.enemy", "coop.spawn_temp"],equipment:{head:{id:"minecraft:oak_button",count:1,components:{"minecraft:item_model":"coop:conehead"}}},drop_chances:{head:0.000},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:max_health",base:40},{id:"minecraft:spawn_reinforcements",base:0}]}
+        function ./summon/conehead_zombie
     elif e == Enemy.BUCKETHEAD_ZOMBIE.value:
-        summon zombie ~ ~ ~ {DeathLootTable:"coop:coin_3",PersistenceRequired:1b,CanPickUpLoot:0b,Health:60f,CanBreakDoors:0b,Tags:["coop.enemy", "coop.spawn_temp"],equipment:{head:{id:"minecraft:oak_button",count:1,components:{"minecraft:item_model":"coop:buckethead"}}},drop_chances:{head:0.000},attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:max_health",base:60},{id:"minecraft:spawn_reinforcements",base:0}]}
+        function ./summon/buckethead_zombie
+    elif e == Enemy.SHIELD_ZOMBIE.value:
+        function ./summon/shield_zombie
+    elif e == Enemy.IMP.value:
+        function ./summon/imp   
+    elif e == Enemy.COLOR_IMP_TRIO.value:
+        function ./summon/color_imp_trio
 
     as @n[tag=coop.spawn_temp]:
         enemy_aggro_timer["@s"] = 20
@@ -157,7 +217,7 @@ function LOAD:
     team add players "players"
     team add coin_color "coin color"
     team modify players friendlyFire false
-    team modify coin_color color green
+    team modify coin_color color yellow
 
 function TICK:
     as @a at @s function PLAYER_TICK
@@ -213,11 +273,11 @@ function TICK:
             vars[".game_state"] = GameState.NOT_RUNNING.value
         elif len(storage.current_wave[0]) > 0:
             if vars[".enemy_spawn_timer"] <= 0:
-                vars[".enemy_spawn_interval"] = randint_range(5, 20)
+                vars[".enemy_spawn_interval"] = randint_range(5, 40)
                 vars[".enemy_spawn_timer"] = vars[".enemy_spawn_interval"]
 
                 # Any enemies in current batch? -> Spawn next enemy in the batch & pop it
-                tellraw @a {"nbt":"current_wave[0][0]","storage":"coop:data"}
+                # tellraw @a {"nbt":"current_wave[0][0]","storage":"coop:data"}
                 at @e[tag=coop.spawn_location, sort=random, limit=1]:
                     vars[".enemy_to_spawn"] = storage.current_wave[0][0]
                     function coop:spawn_enemy
@@ -229,9 +289,9 @@ function TICK:
             unless entity @e[tag=coop.enemy]:
                 # All enemies spawned & killed? -> Pop empty list for current batch
                 storage.current_wave[0].remove()
+                say wave cleared!
                 # Adjusting this will delay the first enemy of the next batch
-                vars[".enemy_spawn_interval"] = 40
-
+                vars[".enemy_spawn_timer"] = 30 * 20
 
 function PLAYER_TICK:
     team join players @s
@@ -255,6 +315,7 @@ function PLAYER_TICK:
         stopsound @s * minecraft:entity.player.levelup
         playsound minecraft:entity.experience_orb.pickup master @s ~ ~ ~ 0.3 1.5
 
+    sword_item_filter = '*[minecraft:custom_data~{weapon: "sword"}]'
     bow_item_filter = '*[minecraft:custom_data~{weapon: "bow"}]'
 
     # Upgrade book try buy triggers
@@ -275,10 +336,35 @@ function PLAYER_TICK:
                 clear @s written_book[minecraft:custom_data~{upgrade_book: 1b}]
                 update_upgrade_menu_item(modify_existing_mainhand=True)
 
+    for entry_data in UPGRADE_BOOK_SWORD_CONTENTS:
+        if (upgrade_book_buy_trigger["@s"] == encode_trigger_value(entry_data.spec.value, entry_data.lvl)
+            and tmp[".coins"] >= entry_data.price
+        ):
+            current_sword_spec["@s"] = entry_data.spec.value
+            current_sword_level["@s"] = entry_data.lvl
+            clear @s sword_item_filter
+
+            price_inverted = entry_data.price * -1
+            xp add @s price_inverted levels
+
+            execute function coop:upgrade_book_trigger_cleanup:
+                upgrade_book_buy_trigger["@s"].reset()
+                clear @s written_book[minecraft:custom_data~{upgrade_book: 1b}]
+                update_upgrade_menu_item(modify_existing_mainhand=True)
+
+
     upgrade_book_buy_trigger["@s"].reset()
     upgrade_book_buy_trigger["@s"].enable()
 
     # Item give logic
+    if inventory_item_count(sword_item_filter) == 0:
+        for itemstack in SWORD_ITEMSTACK_DEFINITIONS:
+            if (
+                current_sword_level["@s"] == itemstack.lvl
+                and current_sword_spec["@s"] == itemstack.spec.value
+            ):
+                give @s itemstack.item_
+
     if inventory_item_count(bow_item_filter) == 0:
         for itemstack in BOW_ITEMSTACK_DEFINITIONS:
             if (
@@ -287,6 +373,8 @@ function PLAYER_TICK:
             ):
                 give @s itemstack.item_
 
+
+        # SWORD_ITEMSTACK_DEFINITIONS
 
     # 📙 Ensuring upgrade book exists in inventory
     upgrade_book_count = inventory_item_count("written_book[minecraft:custom_data~{upgrade_book: 1b}]")

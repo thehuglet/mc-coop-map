@@ -1,3 +1,5 @@
-function coop:update_upgrade_menu_item
-clear @s written_book[minecraft:custom_data~{upgrade_book: 1b}]
-loot give @s mine 0 0 0 stick[custom_data={drop_contents: 1b}]
+scoreboard players set @s coop.current_spec.sword 1
+scoreboard players set @s coop.current_level.sword 2
+clear @s *[minecraft:custom_data~{weapon: "sword"}]
+xp add @s -5 levels
+function coop:upgrade_book_trigger_cleanup

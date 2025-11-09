@@ -1,2 +1,5 @@
-execute if score .enemy_to_spawn coop.var matches 2 run return run summon zombie ~ ~ ~ {DeathLootTable: "coop:coin_2", PersistenceRequired: 1b, CanPickUpLoot: 0b, Health: 40.0f, CanBreakDoors: 0b, Tags: ["coop.enemy", "coop.spawn_temp"], equipment: {head: {id: "minecraft:oak_button", count: 1, components: {"minecraft:item_model": "coop:conehead"}}}, drop_chances: {head: 0.0d}, attributes: [{id: "minecraft:follow_range", base: 2048}, {id: "minecraft:max_health", base: 40}, {id: "minecraft:spawn_reinforcements", base: 0}]}
-execute if score .enemy_to_spawn coop.var matches 3 run summon zombie ~ ~ ~ {DeathLootTable: "coop:coin_3", PersistenceRequired: 1b, CanPickUpLoot: 0b, Health: 60.0f, CanBreakDoors: 0b, Tags: ["coop.enemy", "coop.spawn_temp"], equipment: {head: {id: "minecraft:oak_button", count: 1, components: {"minecraft:item_model": "coop:buckethead"}}}, drop_chances: {head: 0.0d}, attributes: [{id: "minecraft:follow_range", base: 2048}, {id: "minecraft:max_health", base: 60}, {id: "minecraft:spawn_reinforcements", base: 0}]}
+execute if score .enemy_to_spawn coop.var matches 2 run return run function coop:summon/conehead_zombie
+execute if score .enemy_to_spawn coop.var matches 3 run return run function coop:summon/buckethead_zombie
+execute if score .enemy_to_spawn coop.var matches 5 run return run function coop:summon/shield_zombie
+execute if score .enemy_to_spawn coop.var matches 4 run return run function coop:summon/imp
+execute if score .enemy_to_spawn coop.var matches 6 run function coop:summon/color_imp_trio

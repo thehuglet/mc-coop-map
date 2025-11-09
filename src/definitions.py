@@ -7,21 +7,31 @@ class GameState(Enum):
 
 
 class ItemSpec(Enum):
-    NONE = auto()
+    SWORD_NONE = auto()
+    BOW_NONE = auto()
 
-    # Bow
-    REINFORCED_ARROWS = auto()
-    SPLIT_FLIGHTS = auto()
-    IRON_TEMPEST = auto()
-    VIPER_FANG = auto()
-    PLAGUE_VOLLEY = auto()
-    BLASTHRA = auto()
+    SWORD_FURY = auto()
+    SWORD_WHIRLWIND = auto()
+    SWORD_HEMORRHAGE = auto()
+    SWORD_BLOODTHIRSTER = auto()
+    SWORD_BERSERKER = auto()
+    SWORD_SOULREND = auto()
+
+    BOW_REINFORCED_ARROWS = auto()
+    BOW_SPLIT_FLIGHTS = auto()
+    BOW_IRON_TEMPEST = auto()
+    BOW_VIPER_FANG = auto()
+    BOW_PLAGUE_VOLLEY = auto()
+    BOW_BLASTHRA = auto()
 
 
 class Enemy(Enum):
     BASIC_ZOMBIE = auto()
     CONEHEAD_ZOMBIE = auto()
     BUCKETHEAD_ZOMBIE = auto()
+    IMP = auto()
+    SHIELD_ZOMBIE = auto()
+    COLOR_IMP_TRIO = auto()
 
 
 LOAD: str = "coop:load"

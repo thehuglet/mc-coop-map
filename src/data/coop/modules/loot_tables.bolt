@@ -1,7 +1,6 @@
 
 def generate_loot_tables():
-    for n in range(1, 11): 
-
+    for n in range(1, 100): 
         loot_table f"coop:coin_{n}" {
             "type": "minecraft:entity",
             "pools": [
@@ -14,7 +13,8 @@ def generate_loot_tables():
                             {
                             "function": "minecraft:set_custom_data",
                             "tag": {
-                                "coin": true
+                                "coin": true,
+                                "allow_dropping": true
                             }
                             },
                             {

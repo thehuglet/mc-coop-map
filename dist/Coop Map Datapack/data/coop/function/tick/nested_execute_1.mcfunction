@@ -1,4 +1,4 @@
-execute if entity @s[tag=coop.weapon.blasthra.arrow] run function coop:weapon/blasthra/tick_arrow
-execute if entity @s[tag=coop.weapon.plague_volley.arrow] run function coop:weapon/plague_volley/tick_arrow
-execute if entity @e[tag=coop.weapon.iron_tempest.arrow] run function coop:weapon/iron_tempest/tick_arrow
-execute if entity @s[tag=!coop.handles_own_despawn, tag=!coop.will_despawn] if data entity @s inGround run function coop:tick/nested_execute_0
+scoreboard players set @s coop.enemy_aggro_timer -1
+data modify entity @s Silent set value 1b
+damage @s 0 coop:poison by @r
+data modify entity @s Silent set value 0b

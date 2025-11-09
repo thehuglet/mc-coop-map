@@ -33,8 +33,12 @@ def generate_funcs():
         playsound minecraft:entity.firework_rocket.large_blast master @a ~ ~ ~ 0.25 1.9 0.08
         playsound minecraft:entity.firework_rocket.twinkle master @a ~ ~ ~ 0.15 2.0 0.01
 
-        as @e[type=!player, type=!arrow, distance=..2]:
-            damage @s 10 coop:bypasses_cooldown at ~ ~ ~
+        # on origin tag @s add tmp_attacker
+        as @e[type=!player, type=!arrow, type=!block_display, distance=..2]:
+            unless entity @s[team=players]:
+                damage @s 10 coop:bypasses_cooldown at ~ ~ ~
+        
+        tag @n[tag=tmp_attacker] remove tmp_attacker
 
         on passengers kill @s
         
@@ -79,10 +83,10 @@ def generate_funcs():
 
     function coop:weapon/blasthra/on_used_bow_as_player:
         anchored eyes:
-            playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.3 1.6 0.1
-            playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.3 1.8 0.1
-            playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.3 2.0 0.1
-            playsound minecraft:entity.firework_rocket.launch master @a ^ ^0.5 ^ 1.0 1.5 0.1
-            playsound minecraft:entity.firework_rocket.launch master @a ^ ^0.5 ^ 1.0 1.2 0.1
-            playsound minecraft:entity.firework_rocket.launch master @a ^ ^0.5 ^ 0.3 0.9 0.1
+            playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.3 1.6
+            playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.3 1.8
+            playsound minecraft:entity.wither.shoot master @a ~ ~ ~ 0.3 2.0
+            playsound minecraft:entity.firework_rocket.launch master @a ^ ^0.5 ^ 1.0 1.5
+            playsound minecraft:entity.firework_rocket.launch master @a ^ ^0.5 ^ 1.0 1.2
+            playsound minecraft:entity.firework_rocket.launch master @a ^ ^0.5 ^ 0.3 0.9
             

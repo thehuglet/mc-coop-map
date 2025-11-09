@@ -1,2 +1,3 @@
-data modify entity @s life set value 1150
-tag @s add coop.will_despawn
+team join coin_color @s
+data modify entity @s Glowing set value 1b
+tag @s add coop.coin_glow_applied

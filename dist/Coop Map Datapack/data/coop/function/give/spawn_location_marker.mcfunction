@@ -1,0 +1,1 @@
+give @s creeper_spawn_egg[item_model="minecraft:spawner", custom_name={color: "red", italic: false, text: "Spawn Location"}, entity_data={id: "minecraft:armor_stand", CustomNameVisible: 1b, NoGravity: 1b, Invulnerable: 1b, Small: 1b, Tags: ["coop.spawn_location"], DisabledSlots: 4144959, Rotation: [0.0f, 0.0f], CustomName: {color: "red", italic: false, text: "Spawn Location"}}] 1

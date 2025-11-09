@@ -3,27 +3,28 @@ from dataclasses import dataclass
 
 @dataclass
 class EntryData:
-    lvl: int
-    spec: ItemSpec
     name: str
+    spec: ItemSpec
+    lvl: int
+    price: int
     req_lvl: int
     req_spec: ItemSpec
 
 UPGRADE_BOOK_BOW_CONTENTS = [
-    EntryData(name="Bow",                spec=ItemSpec.NONE,                 lvl=1, req_lvl=0, req_spec=ItemSpec.NONE),
-    EntryData(name="Bow",                spec=ItemSpec.NONE,                 lvl=2, req_lvl=1, req_spec=ItemSpec.NONE),
-    EntryData(name="Reinforced Arrows",  spec=ItemSpec.REINFORCED_ARROWS,    lvl=3, req_lvl=2, req_spec=ItemSpec.NONE),
-    EntryData(name="Split Flights",      spec=ItemSpec.SPLIT_FLIGHTS,        lvl=3, req_lvl=2, req_spec=ItemSpec.NONE),
+    EntryData(name="Bow",                spec=ItemSpec.NONE,                 lvl=1, price=5, req_lvl=0, req_spec=ItemSpec.NONE),
+    EntryData(name="Bow",                spec=ItemSpec.NONE,                 lvl=2, price=10, req_lvl=1, req_spec=ItemSpec.NONE),
+    EntryData(name="Reinforced Arrows",  spec=ItemSpec.REINFORCED_ARROWS,    lvl=3, price=15, req_lvl=2, req_spec=ItemSpec.NONE),
+    EntryData(name="Split Flights",      spec=ItemSpec.SPLIT_FLIGHTS,        lvl=3, price=15, req_lvl=2, req_spec=ItemSpec.NONE),
 
     # Reinforced Arrows path
-    EntryData(name="Reinforced Arrows",  spec=ItemSpec.REINFORCED_ARROWS,    lvl=4, req_lvl=3, req_spec=ItemSpec.REINFORCED_ARROWS),
-    EntryData(name="Reinforced Arrows",  spec=ItemSpec.REINFORCED_ARROWS,    lvl=5, req_lvl=4, req_spec=ItemSpec.REINFORCED_ARROWS),
-    EntryData(name="Iron Tempest",       spec=ItemSpec.IRON_TEMPEST,         lvl=6, req_lvl=5, req_spec=ItemSpec.REINFORCED_ARROWS),
-    EntryData(name="Viper Fang",         spec=ItemSpec.VIPER_FANG,           lvl=6, req_lvl=5, req_spec=ItemSpec.REINFORCED_ARROWS),
+    EntryData(name="Reinforced Arrows",  spec=ItemSpec.REINFORCED_ARROWS,    lvl=4, price=20, req_lvl=3, req_spec=ItemSpec.REINFORCED_ARROWS),
+    EntryData(name="Reinforced Arrows",  spec=ItemSpec.REINFORCED_ARROWS,    lvl=5, price=25, req_lvl=4, req_spec=ItemSpec.REINFORCED_ARROWS),
+    EntryData(name="Iron Tempest",       spec=ItemSpec.IRON_TEMPEST,         lvl=6, price=30, req_lvl=5, req_spec=ItemSpec.REINFORCED_ARROWS),
+    EntryData(name="Viper Fang",         spec=ItemSpec.VIPER_FANG,           lvl=6, price=30, req_lvl=5, req_spec=ItemSpec.REINFORCED_ARROWS),
 
     # Split Flights path
-    EntryData(name="Split Flights",      spec=ItemSpec.SPLIT_FLIGHTS,        lvl=4, req_lvl=3, req_spec=ItemSpec.SPLIT_FLIGHTS),
-    EntryData(name="Split Flights",      spec=ItemSpec.SPLIT_FLIGHTS,        lvl=5, req_lvl=4, req_spec=ItemSpec.SPLIT_FLIGHTS),
-    EntryData(name="Plague Volley",      spec=ItemSpec.PLAGUE_VOLLEY,        lvl=6, req_lvl=5, req_spec=ItemSpec.SPLIT_FLIGHTS),
-    EntryData(name="Blasthra",           spec=ItemSpec.BLASTHRA,             lvl=6, req_lvl=5, req_spec=ItemSpec.SPLIT_FLIGHTS),
+    EntryData(name="Split Flights",      spec=ItemSpec.SPLIT_FLIGHTS,        lvl=4, price=20, req_lvl=3, req_spec=ItemSpec.SPLIT_FLIGHTS),
+    EntryData(name="Split Flights",      spec=ItemSpec.SPLIT_FLIGHTS,        lvl=5, price=25, req_lvl=4, req_spec=ItemSpec.SPLIT_FLIGHTS),
+    EntryData(name="Plague Volley",      spec=ItemSpec.PLAGUE_VOLLEY,        lvl=6, price=30, req_lvl=5, req_spec=ItemSpec.SPLIT_FLIGHTS),
+    EntryData(name="Blasthra",           spec=ItemSpec.BLASTHRA,             lvl=6, price=30, req_lvl=5, req_spec=ItemSpec.SPLIT_FLIGHTS),
 ]

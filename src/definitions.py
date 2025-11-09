@@ -18,6 +18,12 @@ class ItemSpec(Enum):
     BLASTHRA = auto()
 
 
+class Enemy(Enum):
+    BASIC_ZOMBIE = auto()
+    CONEHEAD_ZOMBIE = auto()
+    BUCKETHEAD_ZOMBIE = auto()
+
+
 LOAD: str = "coop:load"
 TICK: str = "coop:tick"
 PLAYER_TICK: str = "coop:player_tick"

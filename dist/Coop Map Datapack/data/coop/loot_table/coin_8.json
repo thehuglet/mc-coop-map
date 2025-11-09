@@ -10,7 +10,8 @@
             {
               "function": "minecraft:set_custom_data",
               "tag": {
-                "coin": true
+                "coin": true,
+                "allow_dropping": true
               }
             },
             {

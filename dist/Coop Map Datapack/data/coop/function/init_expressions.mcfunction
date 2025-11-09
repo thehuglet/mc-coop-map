@@ -1,5 +1,6 @@
 scoreboard objectives add bolt.expr.const dummy
 scoreboard objectives add bolt.expr.temp dummy
+scoreboard objectives add coop.enemy_aggro_timer dummy
 scoreboard objectives add coop.current_level.bow dummy
 scoreboard objectives add coop.current_spec.bow dummy
 scoreboard objectives add coop.upgrade_book.buy_trigger trigger

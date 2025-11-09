@@ -34,3 +34,15 @@ def inventory_item_count(item_: str):
     store result score scoreholder tmp:
         clear @s item_ 0
     return tmp[scoreholder]
+
+def randint_range(min: int, max: int):
+    scoreholder = f".helper_out_{next(incr)}"
+    store result score scoreholder tmp:
+        random value (min, max)
+    return tmp[scoreholder]
+
+def get_xp_levels():
+    scoreholder = f".helper_out_{next(incr)}"
+    store result score scoreholder tmp:
+        xp query @s levels
+    return tmp[scoreholder]

@@ -14,5 +14,6 @@ playsound minecraft:block.fire.ambient master @a ~ ~ ~ 1.0 1.5 0.08
 playsound minecraft:entity.firework_rocket.blast master @a ~ ~ ~ 0.5 1.5 0.08
 playsound minecraft:entity.firework_rocket.large_blast master @a ~ ~ ~ 0.25 1.9 0.08
 playsound minecraft:entity.firework_rocket.twinkle master @a ~ ~ ~ 0.15 2.0 0.01
-execute as @e[type=!player, type=!arrow, distance=..2] run damage @s 10 coop:bypasses_cooldown at ~ ~ ~
+execute as @e[type=!player, type=!arrow, type=!block_display, distance=..2] unless entity @s[team=players] run damage @s 10 coop:bypasses_cooldown at ~ ~ ~
+tag @n[tag=tmp_attacker] remove tmp_attacker
 execute on passengers run kill @s
